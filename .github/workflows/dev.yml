@@ -1,0 +1,68 @@
+name: dev
+
+on:
+  push:
+      branches:
+      - dev
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    # node 编译
+    - name: build
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - run: npm i -g hexo-cli textlint textlint-rule-ja-space-between-half-and-full-width
+    - run: npm i -f
+    - run: textlint --fix .\source\_posts\*.md
+    - run: hexo clean
+    - run: hexo g
+
+    # 部署到 GitHub Pages
+    #- name: Deploy
+    #  uses: JamesIves/github-pages-deploy-action@releases/v3
+    #  with:
+    #    ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+    #    BRANCH: dev
+    #    FOLDER: public
+
+    # docker build，并push
+    - name: Docker push
+      uses: azure/docker-login@v1
+      with:
+        login-server: ccr.ccs.tencentyun.com
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    - run: |
+        docker build -t ccr.ccs.tencentyun.com/blog-bkduck/blog:dev .
+        docker push ccr.ccs.tencentyun.com/blog-bkduck/blog:dev
+
+    # 让K8s应用deployment
+    - name: deploy to cluster
+      uses: steebchen/kubectl@v2.0.0
+      with:
+        config: ${{ secrets.KUBE_CONFIG_DATA }}
+        version: v1.21.0
+        command: apply -f deployment.yaml -n default
+    - name: restart cluster
+      uses: steebchen/kubectl@v2.0.0
+      with:
+        config: ${{ secrets.KUBE_CONFIG_DATA }}
+        version: v1.21.0
+        command: rollout restart deployment blog -n default
+    #- name: verify deployment
+    #  uses: steebchen/kubectl@master
+    #  env:
+    #    KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+    #    KUBECTL_VERSION: "1.15"
+    #  with:
+    #    args: '"rollout status -n default deployment/blog"'
+    #- run: |
+    #    sed -i 's/{TAG}/dev/g' deployment.yaml
+    #    cat deployment.yaml

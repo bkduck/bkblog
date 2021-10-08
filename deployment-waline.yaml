@@ -1,0 +1,81 @@
+#apiVersion: extensions/v1beta1
+#kind: Ingress
+#metadata:
+#  name: comment
+#  namespace: default
+#spec:
+  #tls:
+  #  - hosts:
+  #      - comment.bkduck.cn
+  #    secretName: comment-https-secret
+#  rules:
+#    - host: comment.bkduck.cn
+#      http:
+#        paths:
+#          - backend:
+#              serviceName: comment
+#              servicePort: 80
+#  backend:
+#    serviceName: comment
+#    servicePort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: comment
+  labels:
+    app: comment
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8360
+
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8360
+  selector:
+    app: comment
+  sessionAffinity: ClientIP
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comment
+  labels:
+    app: comment
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: comment
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: comment
+    spec:
+      imagePullSecrets:
+        - name: blog-bkduck
+      containers:
+        - image: ccr.ccs.tencentyun.com/blog-bkduck/waline:stagging
+          imagePullPolicy: Always
+          name: comment
+          ports:
+            - containerPort: 8360
+              protocol: TCP
+          resources: {}
+      dnsConfig: {}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+

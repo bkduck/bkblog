@@ -1,0 +1,32 @@
+## PV
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+  labels:
+    app: mysql             #设置 pv 的 label 标签
+spec:
+  capacity:
+    storage: 10Gi          #设置 pv 存储资源大小
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  hostPath:
+    path: "/mnt/data"
+  persistentVolumeReclaimPolicy: Retain
+---
+## PVC
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mysql-pvc
+spec:
+  resources:
+    requests:
+      storage: 10Gi        #设置 pvc 存储资源大小
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  selector:
+    matchLabels:
+      app: mysql           #根据 Label 选择对应 PV
