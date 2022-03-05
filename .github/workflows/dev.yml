@@ -40,8 +40,8 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
     - run: |
-        docker build -t ccr.ccs.tencentyun.com/blog-bkduck/blog:dev .
-        docker push ccr.ccs.tencentyun.com/blog-bkduck/blog:dev
+        docker build -t ccr.ccs.tencentyun.com/xxx/blog:dev .
+        docker push ccr.ccs.tencentyun.com/xxx/blog:dev
 
     # 让K8s应用deployment
     - name: deploy to cluster

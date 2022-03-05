@@ -6,9 +6,6 @@ metadata:
 spec:
   tls:
     - hosts:
-        - blog.bkduck.cn
-      secretName: blog-https-secret
-    - hosts:
         - www.bkduck.cn
       secretName: www-https-secret
     - hosts:
@@ -25,12 +22,6 @@ spec:
               serviceName: blog
               servicePort: 80
     - host: www.bkduck.cn
-      http:
-        paths:
-          - backend:
-              serviceName: blog
-              servicePort: 80
-    - host: blog.bkduck.cn
       http:
         paths:
           - backend:
@@ -93,7 +84,7 @@ spec:
       imagePullSecrets:
         - name: blog-bkduck
       containers:
-        - image: ccr.ccs.tencentyun.com/blog-bkduck/blog:dev
+        - image: ccr.ccs.tencentyun.com/xxx/blog:dev
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3

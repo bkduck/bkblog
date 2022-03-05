@@ -65,7 +65,7 @@ spec:
       imagePullSecrets:
         - name: blog-bkduck
       containers:
-        - image: ccr.ccs.tencentyun.com/blog-bkduck/waline:stagging
+        - image: ccr.ccs.tencentyun.com/xxx/waline:stagging
           imagePullPolicy: Always
           name: comment
           ports:
